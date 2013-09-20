@@ -1,0 +1,53 @@
+---
+layout: post
+title: "My Dream Development Environment"
+date: 2013-02-26 19:54
+comments: true
+categories: [development,work] 
+---
+
+In my dream development environment, the following would be a reality:
+
+The project manager has a clear and ongoing interpretation of project priority and can assign work accordingly. She maintains a queue of projects, tasks, and bugs for the team as a whole and also for each developer. She clears roadblocks before assigning tasks.
+
+Quarterly:
+
+Every quarter, the project manager presents the project roadmap to the entire development team. She recaps what we have accomplished in the last quarter, and call out the developers who have contributed substantial effort to the company&#8217;s priorities and strategic vision. The project manager reviews the projects that are in progress and describe upcoming initiatives. As a result of this meeting, the entire team will have a better idea of where our efforts will be focused not only in the quarter beginning, but also a general look at the year ahead.
+
+Every other week:
+
+Every other Friday, the developers all get together in one room. Each developer has 5 minutes to present the most interesting information regarding their work over the last two weeks. A timer is used to be sure that the meeting stays as short as possible. The project manager has the opportunity to communicate valuable information, including shifting priorities.
+
+Daily:
+
+When I come in to work in the morning, I take a look at my queue to see what I’ll be working on next. It could be project-related, or I might need to fix a high priority bug. I may need to complete a task for a project where I am a primary developer, or I may have to do some work for another project.
+
+I open up the task to see what I’ll be doing. The task is clearly defined, all roadblocks are cleared, and I am able to get started easily and quickly. If the task is a bug, there are supporting screenshots and steps to reproduce the problem. If the task is project related, there is a spec document to consult if I run into unknowns. There is a time or difficulty estimate so I have a general idea of how much time I’ll be spending on this effort. If no estimate was provided, I modify the task to reflect my own.
+
+I open the task through Eclipse and trigger an in-progress event so that the project manager and others can see where I am focused. When I’m finished coding and I have made sure to the best of my ability that the change I have made works as expected, I commit my code. I mark the task as “code complete” through Eclipse. The project manager sees a task to be tested in her queue and oversees validation of the change. She reassigns the task to me to deploy, prioritizing the task in my queue appropriately. If the task is project related, a separate deploy task may be assigned and the smaller tasks can be closed.
+
+If at any point, I realize that a task will take significantly (&gt; 1 hour) longer than the estimate, I will communicate this information to the project manager. We will work together to determine the best course of action. I may need to put the ticket on hold while more important tasks are completed. If I continue working on the task, I will update the estimate to reflect the new value.
+
+The project manager is responsible for most of the communication with support. The project manager is assigned tasks and then creates JIRA (or whatever system we’re using) tickets that are then assigned to me. I only want one task queue to keep track of. When someone finds a bug or has a feature request, they can call, email, or chat with the project manager to review the information if necessary. If the project manager decides that a conversation with a developer is necessary, she sets up a meeting. In an emergency situation, that meeting could be immediate, but this is not ideal. There is a stakeholder defined for each task so that when questions arise during development, I know exactly who I need to talk to, and this person has (or can find) the correct answer. I can call, chat, or email this person, and feel comfortable bringing the project manager into the conversation or not as needed.
+
+The project manager stops by my desk every day for a few minutes to review my tasks. She lets me know if there have been any general priority shifts or feedback regarding changes I’ve made. Through talking with the project manager, I feel like I know what’s going on in the company and I am confident that I am making the biggest possible contribution to the company&#8217;s success.
+
+Technical Debt:
+
+Sometimes, when I’m working on a task, I realize that something related is broken or messy. I may have the opportunity to clean up, refactor, and fix related systems, but this might mean that I will have to work on a task past the estimate. If this is the case, I will communicate the opportunity and consequences to the project manager and she will decide whether or not I should pay some technical debt. If I think I can pay the technical debt within the original estimate for the task, I can make the decision to do so or not, using my best judgement. If for any reason, I cannot fix, clean up, or refactor the problem, I will add a new task with details to the Maintenance Backlog in our chosen task system.
+
+Google Fridays:
+
+Google engineers are allowed to take 20 percent of their time to work on something company related that interests them personally. We all have project ideas that we would like to see happen at the company, which don’t always take priority. I would like to have time to develop and present these to management. A proposal process could determine the most valuable possibilities.
+
+Projects:
+
+The company&#8217;s projects follow a predictable and consistent cycle.
+
+Once a project becomes a priority, the project manager works with stakeholders and a primary developer to determine the project requirements. If there is a UI element, a mockup is created. Once the requirements are established, the developer is responsible for writing up the technical specifications in order to meet those requirements, and will assign time or difficulty estimates. The user stories and the technical specifications are broken out and added to the task queue, to be assigned by the project manager to the appropriate team members. The project manager is responsible for maintaining the priority order of the user stories and tasks.
+
+Progress is presented to stakeholders as often as possible (at least once a week) by the project manager and the primary developer. As requirements change during the course of the project, requirements and specifications documents are updated, time or difficulty estimates are revisited, and task queues are modified appropriately. The project manager communicates timelines to stakeholders whenever there is a change.
+
+Maintenance v. Project Development
+
+A dedicated maintenance team is responsible for all incoming bugs, as well as some tasks and features that are not project related. I spend an equal amount of time on the maintenance team as any of my development colleagues in any given year. As a maintenance team member, my queue consists of bugs and tasks initially assigned via support, and tasks in the Maintenance Backlog. If I see opportunities for system improvement, I may be given time to refactor, or I may add tasks to the Maintenance Backlog. The project manager maintains at least one week’s worth of priorities in the Maintenance Backlog. Unless a task is explicitly assigned to me, I take the next item off the Backlog to work on next.
