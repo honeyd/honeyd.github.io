@@ -4,7 +4,7 @@
   <title><![CDATA[Honey Darling]]></title>
   <link href="http://honeyd.github.io/atom.xml" rel="self"/>
   <link href="http://honeyd.github.io/"/>
-  <updated>2013-09-19T18:05:47-04:00</updated>
+  <updated>2013-09-20T13:59:42-04:00</updated>
   <id>http://honeyd.github.io/</id>
   <author>
     <name><![CDATA[Honey Darling]]></name>
@@ -12,5 +12,253 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Building a Simple Custom Module in Node.js]]></title>
+    <link href="http://honeyd.github.io/blog/2013/08/29/building-a-simple-custom-module-in-node-js/"/>
+    <updated>2013-08-29T11:45:00-04:00</updated>
+    <id>http://honeyd.github.io/blog/2013/08/29/building-a-simple-custom-module-in-node-js</id>
+    <content type="html"><![CDATA[<p>Writing modular code is one of my very favorite things to do, so it wasn’t long in my adventure with Node.js before I was trying to understand how to build a custom module. I think I’m finally beginning to grasp exactly how custom modules are typically constructed as well as how they are pulled in as dependencies to my Node application.</p>
+
+<p>First, I’ll create an app.js file from which my experiments will run. For now, I’ll leave app.js empty. Side note: app.js is the typical name of the main file of your new Node.js application.</p>
+
+<p>In the same directory as app.js, I’ll create a new JavaScript file called utils.js. This will be my new module. I’ll add two functions to my utils module that I will be using in my Node.js application.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">addHello</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Hello &quot;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">addGoodbye</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Goodbye &quot;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Even though my utils module defines two perfectly good functions, these functions are not yet available to my application. In order to bring my utils module into my application, I define a dependency by using the require() function. In my app.js, I’ll add the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">utils</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./utils&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Unfortunately, if I try to run <code>console.log(utils.addHello("Honey"));</code> in my app.js, the code will break. The <code>require()</code> function doesn’t just include the code in my module. Instead, it wraps the code in my module up in a closure that then returns anything set to <code>module.exports</code>. In other words, I need to add the functions I created to a special object called <code>module.exports</code> so that requiring my module will return the <code>addHello()</code> and <code>addGoodbye()</code> methods. I can do this my modifying utils.js in a couple of different ways:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">addHello</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Hello &quot;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">addGoodbye</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Goodbye &quot;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">addHello</span> <span class="o">=</span> <span class="nx">addHello</span><span class="p">;</span>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">addGoodbye</span> <span class="o">=</span> <span class="nx">addGoodbye</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OR through direct assignment:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">addHello</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Hello &quot;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">addGoodbye</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Goodbye &quot;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now when I try to use these functions in app.js, everything should work swimmingly.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">utils</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./utils&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">utils</span><span class="p">.</span><span class="nx">addHello</span><span class="p">(</span><span class="s2">&quot;Honey&quot;</span><span class="p">));</span>
+</span><span class='line'><span class="c1">//=&gt; Hello Honey</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So far so good? Good. There are some other things to be aware of.</p>
+
+<p>module.exports vs. exports</p>
+
+<p>You may notice that sometimes, people will use the variable exports instead of module.exports. In my utils.js, I can replace all my references to module.exports with just exports, and everything will continue to work as expected.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">exports</span><span class="p">.</span><span class="nx">addHello</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Hello &quot;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'><span class="nx">exports</span><span class="p">.</span><span class="nx">addGoodbye</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Goodbye &quot;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Remember that wrapper I mentioned, that is responsible for packaging the code in my module? Well, before it pulls in my code, it assigns <code>module.exports</code> to <code>exports</code>, so that <code>exports</code> is just a pointer to <code>module.exports</code>. Take a look at this excellent answer from StackOverflow: <a href="http://stackoverflow.com/questions/16383795/difference-between-module-exports-and-exports-in-the-commonjs-module-system/16383925#16383925">Difference between “module.exports” and “exports” in the CommonJS Module System</a>.</p>
+
+<p>In other words, <code>exports</code> is a shortcut to <code>module.exports</code> (less typing), but it’s not the variable that is returned, so I have to be careful. As a result of this, I see the following pretty often, especially when a custom module is a constructor:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Book</span> <span class="o">=</span> <span class="nx">exports</span> <span class="o">=</span> <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That’s a lot of assignment! This statement not only ensures that <code>exports</code> and <code>module.exports</code> are the same, but it also assigns the module function to a variable that can be used for anything I like outside of the constructor function (like adding methods to the prototype, for example).</p>
+
+<p>Interestingly, I can <code>require()</code> a directory, not just a single file. Node.js will gladly look in the directory and see if I have an index.js file to use, and pull that in if it exists. If I wanted to package up a bunch of modules into one <code>require()</code>, I might add something like this to index.js (assuming one.js and two.js exist in the same folder):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">one</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./one&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">two</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./two&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then I can require the directory in app.js (assuming index.js, one.js, and two.js live in a directory called “stuff”):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">stuff</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(.</span><span class="o">/</span><span class="nx">stuff</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Looping over an array, beginning at an offset]]></title>
+    <link href="http://honeyd.github.io/blog/2013/08/19/looping-over-an-array-beginning-at-an-offset/"/>
+    <updated>2013-08-19T10:30:00-04:00</updated>
+    <id>http://honeyd.github.io/blog/2013/08/19/looping-over-an-array-beginning-at-an-offset</id>
+    <content type="html"><![CDATA[<p>I&rsquo;m playing around with building a little Texas Hold &lsquo;em simulator. I set up the players as an array, and started a hand. I realized pretty quickly that I&rsquo;ll need to start play at a different player each hand, which means looping over the array with a different offset every time. I wondered, how do I loop over the entire array, beginning at a position other than 0? And then the magical modulus operator came to my rescue.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// set up the array</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">fruit</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;banana&#39;</span><span class="p">,</span><span class="s1">&#39;apple&#39;</span><span class="p">,</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span><span class="s1">&#39;kiwi&#39;</span><span class="p">,</span><span class="s1">&#39;watermelon&#39;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// set an offset</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">offset</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// loop over the array</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">fruit</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// calculate the iterator</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">it</span> <span class="o">=</span> <span class="p">(</span><span class="nx">i</span> <span class="o">+</span> <span class="nx">offset</span><span class="p">)</span> <span class="o">%</span> <span class="nx">fruit</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// access the array element, using the fancy iterator</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">fruit</span><span class="p">[</span><span class="nx">it</span><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">kiwi</span>
+</span><span class='line'><span class="nx">watermelon</span>
+</span><span class='line'><span class="nx">banana</span>
+</span><span class='line'><span class="nx">apple</span>
+</span><span class='line'><span class="nx">orange</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[My Dream Development Environment]]></title>
+    <link href="http://honeyd.github.io/blog/2013/02/26/my-dream-development-environment/"/>
+    <updated>2013-02-26T19:54:00-05:00</updated>
+    <id>http://honeyd.github.io/blog/2013/02/26/my-dream-development-environment</id>
+    <content type="html"><![CDATA[<p>In my dream development environment, the following would be a reality:</p>
+
+<p>The project manager has a clear and ongoing interpretation of project priority and can assign work accordingly. She maintains a queue of projects, tasks, and bugs for the team as a whole and also for each developer. She clears roadblocks before assigning tasks.</p>
+
+<p>Quarterly:</p>
+
+<p>Every quarter, the project manager presents the project roadmap to the entire development team. She recaps what we have accomplished in the last quarter, and call out the developers who have contributed substantial effort to the company&#8217;s priorities and strategic vision. The project manager reviews the projects that are in progress and describe upcoming initiatives. As a result of this meeting, the entire team will have a better idea of where our efforts will be focused not only in the quarter beginning, but also a general look at the year ahead.</p>
+
+<p>Every other week:</p>
+
+<p>Every other Friday, the developers all get together in one room. Each developer has 5 minutes to present the most interesting information regarding their work over the last two weeks. A timer is used to be sure that the meeting stays as short as possible. The project manager has the opportunity to communicate valuable information, including shifting priorities.</p>
+
+<p>Daily:</p>
+
+<p>When I come in to work in the morning, I take a look at my queue to see what I’ll be working on next. It could be project-related, or I might need to fix a high priority bug. I may need to complete a task for a project where I am a primary developer, or I may have to do some work for another project.</p>
+
+<p>I open up the task to see what I’ll be doing. The task is clearly defined, all roadblocks are cleared, and I am able to get started easily and quickly. If the task is a bug, there are supporting screenshots and steps to reproduce the problem. If the task is project related, there is a spec document to consult if I run into unknowns. There is a time or difficulty estimate so I have a general idea of how much time I’ll be spending on this effort. If no estimate was provided, I modify the task to reflect my own.</p>
+
+<p>I open the task through Eclipse and trigger an in-progress event so that the project manager and others can see where I am focused. When I’m finished coding and I have made sure to the best of my ability that the change I have made works as expected, I commit my code. I mark the task as “code complete” through Eclipse. The project manager sees a task to be tested in her queue and oversees validation of the change. She reassigns the task to me to deploy, prioritizing the task in my queue appropriately. If the task is project related, a separate deploy task may be assigned and the smaller tasks can be closed.</p>
+
+<p>If at any point, I realize that a task will take significantly (&gt; 1 hour) longer than the estimate, I will communicate this information to the project manager. We will work together to determine the best course of action. I may need to put the ticket on hold while more important tasks are completed. If I continue working on the task, I will update the estimate to reflect the new value.</p>
+
+<p>The project manager is responsible for most of the communication with support. The project manager is assigned tasks and then creates JIRA (or whatever system we’re using) tickets that are then assigned to me. I only want one task queue to keep track of. When someone finds a bug or has a feature request, they can call, email, or chat with the project manager to review the information if necessary. If the project manager decides that a conversation with a developer is necessary, she sets up a meeting. In an emergency situation, that meeting could be immediate, but this is not ideal. There is a stakeholder defined for each task so that when questions arise during development, I know exactly who I need to talk to, and this person has (or can find) the correct answer. I can call, chat, or email this person, and feel comfortable bringing the project manager into the conversation or not as needed.</p>
+
+<p>The project manager stops by my desk every day for a few minutes to review my tasks. She lets me know if there have been any general priority shifts or feedback regarding changes I’ve made. Through talking with the project manager, I feel like I know what’s going on in the company and I am confident that I am making the biggest possible contribution to the company&#8217;s success.</p>
+
+<p>Technical Debt:</p>
+
+<p>Sometimes, when I’m working on a task, I realize that something related is broken or messy. I may have the opportunity to clean up, refactor, and fix related systems, but this might mean that I will have to work on a task past the estimate. If this is the case, I will communicate the opportunity and consequences to the project manager and she will decide whether or not I should pay some technical debt. If I think I can pay the technical debt within the original estimate for the task, I can make the decision to do so or not, using my best judgement. If for any reason, I cannot fix, clean up, or refactor the problem, I will add a new task with details to the Maintenance Backlog in our chosen task system.</p>
+
+<p>Google Fridays:</p>
+
+<p>Google engineers are allowed to take 20 percent of their time to work on something company related that interests them personally. We all have project ideas that we would like to see happen at the company, which don’t always take priority. I would like to have time to develop and present these to management. A proposal process could determine the most valuable possibilities.</p>
+
+<p>Projects:</p>
+
+<p>The company&#8217;s projects follow a predictable and consistent cycle.</p>
+
+<p>Once a project becomes a priority, the project manager works with stakeholders and a primary developer to determine the project requirements. If there is a UI element, a mockup is created. Once the requirements are established, the developer is responsible for writing up the technical specifications in order to meet those requirements, and will assign time or difficulty estimates. The user stories and the technical specifications are broken out and added to the task queue, to be assigned by the project manager to the appropriate team members. The project manager is responsible for maintaining the priority order of the user stories and tasks.</p>
+
+<p>Progress is presented to stakeholders as often as possible (at least once a week) by the project manager and the primary developer. As requirements change during the course of the project, requirements and specifications documents are updated, time or difficulty estimates are revisited, and task queues are modified appropriately. The project manager communicates timelines to stakeholders whenever there is a change.</p>
+
+<p>Maintenance v. Project Development</p>
+
+<p>A dedicated maintenance team is responsible for all incoming bugs, as well as some tasks and features that are not project related. I spend an equal amount of time on the maintenance team as any of my development colleagues in any given year. As a maintenance team member, my queue consists of bugs and tasks initially assigned via support, and tasks in the Maintenance Backlog. If I see opportunities for system improvement, I may be given time to refactor, or I may add tasks to the Maintenance Backlog. The project manager maintains at least one week’s worth of priorities in the Maintenance Backlog. Unless a task is explicitly assigned to me, I take the next item off the Backlog to work on next.</p>
+]]></content>
+  </entry>
   
 </feed>

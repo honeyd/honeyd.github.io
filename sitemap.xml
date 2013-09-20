@@ -1,8 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
+        <loc>http://honeyd.github.io/blog/2013/02/26/my-dream-development-environment/</loc>
+        <lastmod>2013-09-20T11:51:19-04:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://honeyd.github.io/blog/2013/08/19/looping-over-an-array-beginning-at-an-offset/
+        </loc>
+        <lastmod>2013-09-20T12:42:24-04:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://honeyd.github.io/blog/2013/08/29/building-a-simple-custom-module-in-node-js/
+        </loc>
+        <lastmod>2013-09-20T13:32:42-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://honeyd.github.io/</loc>
-        <lastmod>2013-09-19T18:05:32-04:00</lastmod>
+        <lastmod>2013-09-20T13:32:42-04:00</lastmod>
     </url>
     <url>
         <loc>http://honeyd.github.io/robots.txt</loc>
@@ -10,6 +26,6 @@
     </url>
     <url>
         <loc>http://honeyd.github.io/blog/archives/</loc>
-        <lastmod>2013-09-19T18:05:32-04:00</lastmod>
+        <lastmod>2013-09-20T13:32:42-04:00</lastmod>
     </url>
 </urlset>
