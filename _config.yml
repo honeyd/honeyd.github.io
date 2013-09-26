@@ -7,7 +7,7 @@ title: Honey Darling
 subtitle: I feel good about this 
 author: Honey Darling 
 simple_search: http://google.com/search
-description:
+description: Portland, Web Applications, Node.js, AngularJS, ColdFusion, Motherhood, Being a Good Girlfriend, Yoga, Bicycling, Queer
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
@@ -94,7 +94,7 @@ disqus_short_name: honeyd
 disqus_show_comment_count: false
 
 # Google Analytics
-google_analytics_tracking_id:
+google_analytics_tracking_id: UA-44376301-1
 
 # Facebook Like
 facebook_like: true
