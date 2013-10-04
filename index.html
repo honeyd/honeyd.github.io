@@ -9,7 +9,7 @@
   <meta name="author" content="Honey Darling">
 
   
-  <meta name="description" content="As I spend more time on the command line, I find myself seeking out convenience methods for doing things that usually mean a lot of clicking around, &hellip;">
+  <meta name="description" content="I recently worked through building a sample application using AngularJS and AngularFire (the officially supported AngularJS API for working with &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +80,102 @@
       <div id="content">
         <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/04/firebase-priority-and-angularfire/">Firebase Priority and AngularFire</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-04T16:38:00-04:00" pubdate data-updated="true">Oct 4<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I recently worked through building a sample application using <a href="http://angularjs.org/">AngularJS</a> and <a href="http://angularfire.com/">AngularFire</a> (the officially supported AngularJS API for working with <a href="https://www.firebase.com/">Firebase</a>). You can see the results of my experiments here: <a href="https://github.com/honeyd/my-points">https://github.com/honeyd/my-points</a>.</p>
+
+<p>Firebase doesn&rsquo;t have a ton of ways to query data. Essentially, you have three choices:</p>
+
+<ol>
+<li>Design the data structure so that locations represent queried data</li>
+<li>After retrieval, filter the results yourself</li>
+<li>Use <a href="https://www.firebase.com/docs/ordered-data.html">priority</a></li>
+</ol>
+
+
+<p>For my example app, I needed a way to pull all items that occurred between two dates. When I retrieve the children of a Firebase location, I can specify some boundaries.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">ref</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Firebase</span><span class="p">(</span><span class="s1">&#39;https://firebase-url/items&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="c1">// explicit data binding (1-way)</span>
+</span><span class='line'><span class="nx">$scope</span><span class="p">.</span><span class="nx">items</span> <span class="o">=</span> <span class="nx">angularFireCollection</span><span class="p">(</span><span class="nx">ref</span><span class="p">.</span><span class="nx">startAt</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nx">endAt</span><span class="p">(</span><span class="mi">10</span><span class="p">));</span>
+</span><span class='line'><span class="c1">// implicit data binding (2-way)</span>
+</span><span class='line'><span class="c1">// angularFire(ref.startAt(1).endAt(10), $scope, &#39;items&#39;);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this example, <code>$scope.items</code> will include all items with a priority between 1 and 10 inclusive.</p>
+
+<p>Unfortunately, using implicit data binding (<code>angularFire()</code>) on a location that represents an array is problematic at the time of this writing. When the location is loaded into your model, priority is not taken into account, and will be removed the first time the data is saved back to Firebase. See <a href="https://github.com/firebase/angularFire/issues/116">issue 116</a>.</p>
+
+<p>So <code>angularFire()</code> is out and <code>angularFireCollection()</code> is in.</p>
+
+<p>The difference between <code>angularFire()</code> and <code>angularFireCollection()</code> is that <code>angularFire()</code> will set up implicit, or 2-way data binding with your AngularJS model, and <code>angularFireCollection()</code> will only be 1-way, but provide a lot more flexibility.</p>
+
+<h2>angularfire()</h2>
+
+<p>When I associate a location with my model,</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">angularFire</span><span class="p">(</span><span class="k">new</span> <span class="nx">Firebase</span><span class="p">(</span><span class="s1">&#39;https://firebase-url/items&#39;</span><span class="p">),</span> <span class="nx">$scope</span><span class="p">,</span> <span class="s1">&#39;items&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>any changes I make to that model (<code>$scope.items</code>) will change the Firebase data as well. This is real nice. I can use <code>$scope.items.push({name: 'Sweetness'})</code> and <code>$scope.items.splice(0, 1)</code> and <code>$scope.items[0].name = 'Awesome'</code> to my heart&rsquo;s content.</p>
+
+<h2>angularFireCollection()</h2>
+
+<p>I can assign a Firebase location to any variable I like, but this variable will not be watched for changes and will not modify the Firebase location unless I call the appropriate methods. The good news is that I can use <code>angularFireCollection()</code> to preserve the priority I have already set on an item as well as set a priority when an item is created or updated.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">$scope</span><span class="p">.</span><span class="nx">items</span> <span class="o">=</span> <span class="nx">angularFireCollection</span><span class="p">(</span><span class="k">new</span> <span class="nx">Firebase</span><span class="p">(</span><span class="s1">&#39;https://firebase-url/items&#39;</span><span class="p">));</span>
+</span><span class='line'><span class="nx">$scope</span><span class="p">.</span><span class="nx">items</span><span class="p">.</span><span class="nx">add</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Yes&#39;</span><span class="p">}).</span><span class="nx">setPriority</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The other good news about using <code>angularFireCollection()</code> is that the ordering of items is better than when using <code>angularFire()</code>, but it&rsquo;s not perfect. See <a href="https://github.com/firebase/angularFire/issues/19">issue 19</a>.</p>
+
+<p>To see these ideas in action, visit <a href="http://my-points.herokuapp.com/">my sample app</a>, or <a href="http://plnkr.co/edit/3AfFfo">http://plnkr.co/edit/3AfFfo</a>, or <a href="https://github.com/honeyd/my-points">https://github.com/honeyd/my-points</a>.</p>
+
+<p>I have my eye on the <a href="https://github.com/firebase/angularFire">AngularFire repo</a> for updates to the issues referenced in this post. I&rsquo;ll edit as AngularFire evolves.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -579,6 +675,10 @@ Choosing a phone that is not a smart phone is not very fun. I bought a Motorola 
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/10/04/firebase-priority-and-angularfire/">Firebase Priority and AngularFire</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/09/26/windows-open-a-file-from-the-command-line-with-sublime-text/">Windows: Open a File from the Command Line with Sublime Text 2</a>
       </li>
     
@@ -592,10 +692,6 @@ Choosing a phone that is not a smart phone is not very fun. I bought a Motorola 
     
       <li class="post">
         <a href="/blog/2013/08/19/looping-over-an-array-beginning-at-an-offset/">Looping over an array, beginning at an offset</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/02/26/my-dream-development-environment/">My Dream Development Environment</a>
       </li>
     
   </ul>

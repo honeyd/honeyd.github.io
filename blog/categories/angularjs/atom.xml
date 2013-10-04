@@ -4,7 +4,7 @@
   <title><![CDATA[Category: angularjs | Honey Darling]]></title>
   <link href="http://honeyd.github.io/blog/categories/angularjs/atom.xml" rel="self"/>
   <link href="http://honeyd.github.io/"/>
-  <updated>2013-10-04T19:45:53-04:00</updated>
+  <updated>2013-10-04T19:52:10-04:00</updated>
   <id>http://honeyd.github.io/</id>
   <author>
     <name><![CDATA[Honey Darling]]></name>
@@ -20,10 +20,14 @@
     <id>http://honeyd.github.io/blog/2013/10/04/firebase-priority-and-angularfire</id>
     <content type="html"><![CDATA[<p>I recently worked through building a sample application using <a href="http://angularjs.org/">AngularJS</a> and <a href="http://angularfire.com/">AngularFire</a> (the officially supported AngularJS API for working with <a href="https://www.firebase.com/">Firebase</a>). You can see the results of my experiments here: <a href="https://github.com/honeyd/my-points">https://github.com/honeyd/my-points</a>.</p>
 
-<p>Firebase doesn&rsquo;t have a ton of ways to query data. Essentially, you have three choices:
-1. Design the data structure so that locations represent queried data
-2. After retrieval, filter the results yourself
-3. Use <a href="https://www.firebase.com/docs/ordered-data.html">priority</a></p>
+<p>Firebase doesn&rsquo;t have a ton of ways to query data. Essentially, you have three choices:</p>
+
+<ol>
+<li>Design the data structure so that locations represent queried data</li>
+<li>After retrieval, filter the results yourself</li>
+<li>Use <a href="https://www.firebase.com/docs/ordered-data.html">priority</a></li>
+</ol>
+
 
 <p>For my example app, I needed a way to pull all items that occurred between two dates. When I retrieve the children of a Firebase location, I can specify some boundaries.</p>
 
@@ -39,13 +43,17 @@ $scope.items = angularFireCollection(ref.startAt(1).endAt(10));
 
 <p>Unfortunately, using implicit data binding (<code>angularFire()</code>) on a location that represents an array is problematic at the time of this writing. When the location is loaded into your model, priority is not taken into account, and will be removed the first time the data is saved back to Firebase. See <a href="https://github.com/firebase/angularFire/issues/116">issue 116</a>.</p>
 
-<p><code>angularFire()</code> is out and <code>angularFireCollection()</code> is in.</p>
+<p>So <code>angularFire()</code> is out and <code>angularFireCollection()</code> is in.</p>
 
 <p>The difference between <code>angularFire()</code> and <code>angularFireCollection()</code> is that <code>angularFire()</code> will set up implicit, or 2-way data binding with your AngularJS model, and <code>angularFireCollection()</code> will only be 1-way, but provide a lot more flexibility.</p>
 
 <h2>angularfire()</h2>
 
-<p>When I associate a location with my model (<code>angularFire(new Firebase('https://firebase-url/items'), $scope, 'items')</code>), any changes I make to that model (<code>$scope.items</code>) will change the Firebase data as well. This is real nice. I can use <code>$scope.items.push({name: 'Sweetness'})</code> and <code>$scope.items.splice(0, 1)</code> and <code>$scope.items[0].name = 'Awesome'</code> to my heart&rsquo;s content.</p>
+<p>When I associate a location with my model,
+<code>
+angularFire(new Firebase('https://firebase-url/items'), $scope, 'items')
+</code>
+any changes I make to that model (<code>$scope.items</code>) will change the Firebase data as well. This is real nice. I can use <code>$scope.items.push({name: 'Sweetness'})</code> and <code>$scope.items.splice(0, 1)</code> and <code>$scope.items[0].name = 'Awesome'</code> to my heart&rsquo;s content.</p>
 
 <h2>angularFireCollection()</h2>
 
