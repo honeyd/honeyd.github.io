@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: angularjs | Honey Darling]]></title>
+  <link href="http://honeyd.github.io/blog/categories/angularjs/atom.xml" rel="self"/>
+  <link href="http://honeyd.github.io/"/>
+  <updated>2013-10-04T19:45:53-04:00</updated>
+  <id>http://honeyd.github.io/</id>
+  <author>
+    <name><![CDATA[Honey Darling]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Firebase Priority and AngularFire]]></title>
+    <link href="http://honeyd.github.io/blog/2013/10/04/firebase-priority-and-angularfire/"/>
+    <updated>2013-10-04T16:38:00-04:00</updated>
+    <id>http://honeyd.github.io/blog/2013/10/04/firebase-priority-and-angularfire</id>
+    <content type="html"><![CDATA[<p>I recently worked through building a sample application using <a href="http://angularjs.org/">AngularJS</a> and <a href="http://angularfire.com/">AngularFire</a> (the officially supported AngularJS API for working with <a href="https://www.firebase.com/">Firebase</a>). You can see the results of my experiments here: <a href="https://github.com/honeyd/my-points">https://github.com/honeyd/my-points</a>.</p>
+
+<p>Firebase doesn&rsquo;t have a ton of ways to query data. Essentially, you have three choices:
+1. Design the data structure so that locations represent queried data
+2. After retrieval, filter the results yourself
+3. Use <a href="https://www.firebase.com/docs/ordered-data.html">priority</a></p>
+
+<p>For my example app, I needed a way to pull all items that occurred between two dates. When I retrieve the children of a Firebase location, I can specify some boundaries.</p>
+
+<p><code>javascript
+var ref = new Firebase('https://firebase-url/items');
+// explicit data binding (1-way)
+$scope.items = angularFireCollection(ref.startAt(1).endAt(10));
+// implicit data binding (2-way)
+// angularFire(ref.startAt(1).endAt(10), $scope, 'items');
+</code></p>
+
+<p>In this example, <code>$scope.items</code> will include all items with a priority between 1 and 10 inclusive.</p>
+
+<p>Unfortunately, using implicit data binding (<code>angularFire()</code>) on a location that represents an array is problematic at the time of this writing. When the location is loaded into your model, priority is not taken into account, and will be removed the first time the data is saved back to Firebase. See <a href="https://github.com/firebase/angularFire/issues/116">issue 116</a>.</p>
+
+<p><code>angularFire()</code> is out and <code>angularFireCollection()</code> is in.</p>
+
+<p>The difference between <code>angularFire()</code> and <code>angularFireCollection()</code> is that <code>angularFire()</code> will set up implicit, or 2-way data binding with your AngularJS model, and <code>angularFireCollection()</code> will only be 1-way, but provide a lot more flexibility.</p>
+
+<h2>angularfire()</h2>
+
+<p>When I associate a location with my model (<code>angularFire(new Firebase('https://firebase-url/items'), $scope, 'items')</code>), any changes I make to that model (<code>$scope.items</code>) will change the Firebase data as well. This is real nice. I can use <code>$scope.items.push({name: 'Sweetness'})</code> and <code>$scope.items.splice(0, 1)</code> and <code>$scope.items[0].name = 'Awesome'</code> to my heart&rsquo;s content.</p>
+
+<h2>angularFireCollection()</h2>
+
+<p>I can assign a Firebase location to any variable I like, but this variable will not be watched for changes and will not modify the Firebase location unless I call the appropriate methods. The good news is that I can use <code>angularFireCollection()</code> to preserve the priority I have already set on an item as well as set a priority when an item is created or updated.</p>
+
+<p><code>javascript
+$scope.items = angularFireCollection(new Firebase('https://firebase-url/items'));
+$scope.items.add({name: 'Yes'}).setPriority(1);
+</code>
+The other good news about using <code>angularFireCollection()</code> is that the ordering of items is better than when using <code>angularFire()</code>, but it&rsquo;s not perfect. See <a href="https://github.com/firebase/angularFire/issues/19">issue 19</a>.</p>
+
+<p>To see these ideas in action, visit <a href="http://my-points.herokuapp.com/">my sample app</a>, or <a href="http://plnkr.co/edit/3AfFfo">http://plnkr.co/edit/3AfFfo</a>, or <a href="https://github.com/honeyd/my-points">https://github.com/honeyd/my-points</a>.</p>
+
+<p>I have my eye on the <a href="https://github.com/firebase/angularFire">AngularFire repo</a> for updates to the issues referenced in this post. I&rsquo;ll edit as AngularFire evolves.</p>
+]]></content>
+  </entry>
+  
+</feed>
