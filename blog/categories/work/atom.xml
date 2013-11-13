@@ -4,7 +4,7 @@
   <title><![CDATA[Category: work | Honey Darling]]></title>
   <link href="http://honeyd.github.io/blog/categories/work/atom.xml" rel="self"/>
   <link href="http://honeyd.github.io/"/>
-  <updated>2013-10-04T19:52:10-04:00</updated>
+  <updated>2013-11-12T19:37:48-05:00</updated>
   <id>http://honeyd.github.io/</id>
   <author>
     <name><![CDATA[Honey Darling]]></name>
@@ -12,6 +12,108 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Subversion to Git: A Retrospective]]></title>
+    <link href="http://honeyd.github.io/blog/2013/11/12/subversion-to-git-a-retrospective/"/>
+    <updated>2013-11-12T17:46:00-05:00</updated>
+    <id>http://honeyd.github.io/blog/2013/11/12/subversion-to-git-a-retrospective</id>
+    <content type="html"><![CDATA[<p><img class="right" src="/images/Git-Logo-White.png" width="350">
+I knew I wanted my company to make the switch from SVN to Git, for a number of reasons:</p>
+
+<ul>
+<li>I had been using Git with Github for a while and it felt good.</li>
+<li>Our workflow with Subversion was dysfunctional in that no one could commit until code was ready for production.</li>
+<li>We never branched with Subversion, so working together on a project was painful (emailing patches, yikes).</li>
+<li>Our Subversion server is in the basement, that sometimes floods. We could have lost all that stuff.</li>
+</ul>
+
+
+<h2>Windows</h2>
+
+<p>My fellow developers and I live in a Windows environment, which is not impossible to Git-ify, but it&rsquo;s certainly more challenging than if we were a bunch of bash geeks.</p>
+
+<ul>
+<li>When making the switch, I had to be sensitive to how my fellow devs would use GUIs to interact with our repositories.</li>
+<li>Pulling our Subversion repository down into Git was very slow on Windows, which meant using a Linux virtual machine to get things started.</li>
+</ul>
+
+
+<h2>git svn clone</h2>
+
+<p>The first step was to pull the Subversion repository down into a Git repository by running <code>git svn clone</code>. I followed this <a href="http://john.albin.net/git/convert-subversion-to-git">awesome guide</a> to perform the following:</p>
+
+<ol>
+<li>Retrieve a list of all Subversion committers</li>
+<li>Clone the Subversion repository using git svn</li>
+</ol>
+
+
+<p>I took one look at our Subversion repository and knew right away that I couldn&rsquo;t use the <code>--stdlayout</code> flag to pull branches, tags, and trunk. Our repository was all over the place, and it had been moved around a lot over the years, which meant that we would lose commits. I decided to just pull down everything and break things out later.</p>
+
+<h3>We lost commits</h3>
+
+<p>It&rsquo;s true, any commits that took place before directories were moved within our repository are no longer part of the history of those directories in Git. We made a decision to let those earlier commits go, rather than figure out a way to get them back. We might just run SVN forever in case we really need to go back.</p>
+
+<h3>git-svn died of signal 13</h3>
+
+<p>Our Subversion repository is 63,000 commits, which Git had to churn through and transform into Git commits. This was a very long churn (way longer on Windows). Eventually, git svn croaked. The good news is that you don&rsquo;t have to start over when this happens. Performing a <code>git svn fetch</code> will continue where git svn died. I used <code>while ! git svn fetch ; do sleep 1 ; done</code> from [<a href="http://stackoverflow.com/a/13246655/2097613">http://stackoverflow.com/a/13246655/2097613</a>] to get further longer, but even this would eventually die. It took about 12 hours to git svn clone 63,000 commits on a Linux VM with four cores.</p>
+
+<h3>git svn fetch</h3>
+
+<p>When we were ready to make the big switch, I did one last <code>git svn fetch</code> on the repository to get the latest SVN changes before moving to Git. I saw commits pull in and thought everything was great. But wait! Running a <code>git log</code> showed that I was missing the last 100 commits, and there was no way (that I could figure) to get those in. I had to start all over again, with a 12 hour long <code>git svn clone</code>. I&rsquo;m not sure what happened, but I&rsquo;m assuming that I did something to disrupt <code>git svn</code> in my experimentation, perhaps when I was playing with converting svn:ignore into .gitignore and then reverting.</p>
+
+<h3>git_split</h3>
+
+<p>Our Subversion repository was a beast. I used a <a href="https://github.com/vangorra/git_split">handy little script</a> to split directories in my Git repository out into their own bare repositories, complete with all the change history. It was this process that made me learn about the <a href="http://www.saintsjd.com/2011/01/what-is-a-bare-git-repository/">difference between bare and working repositories</a>.</p>
+
+<h2>The Workflow</h2>
+
+<p>I work with about ten developers, most of whom are comfortable in a GUI-based environment. I wanted the switch to Git to be beneficial for everyone, and I wanted to avoid disruption, if at all possible. I gave two presentations in two weeks: an intro to Git, and then a workflow presentation. I wrote up a very long guide, describing every action that anyone might want to take with Git, using EGit (the Subclipse Git counterpart for Eclipse) and TortoiseGit.</p>
+
+<p>In retrospect, I don&rsquo;t think I could have possibly known what would happen when we flipped the switch. A whole plentitude of issues arose immediately.</p>
+
+<ul>
+<li>LF to CRLF conversion: When installing TortoiseGit, some people had chosen different configurations for handling LF to CRLF file conversion. After the switch, we decided to turn off conversion for everyone, which made a ton of dirty files in everyone&rsquo;s working copies. Fixing this mess was not a piece of cake.</li>
+<li>Deployment: Our production server is a working copy, so our typical deployment was a matter of looking at differences in Tortoise SVN&rsquo;s lovely Check for Modifications tool and then updating the files we wanted. With Git, this process turned into a fetch then a diff then a pull, pulling everything of course, all with password prompts.</li>
+<li>Branching: Although I encouraged people to start branching, it became clear very quickly that branching was not optional. In retrospect, I would have pushed branching sooner in the switch.</li>
+<li>Dirty working copies: I thought it would be fairly seamless to copy the Git repository over existing working copies so that dirty files could remain dirty, but for everyone who did not have a starting clean repository, there were issues that weren&rsquo;t easily resolved.</li>
+<li>Conflicts: I didn&rsquo;t realize there would be so many conflicts right off the bat. I was not prepared to help my fellow developers get through conflicts in EGit or Tortoise Git. We made some mistakes when resolving conflicts that resulted in accidentally reverting the repository, sending old files back out to production, and generally breaking stuff all over the place.</li>
+</ul>
+
+
+<h2>The Good News</h2>
+
+<p>Yes, the switch was challenging, but so, so satisfying. I knew there were reasons to move, but I don&rsquo;t think I realized how awesome it would be to have our version control in Git.</p>
+
+<ul>
+<li>Everyone&rsquo;s branching! We have branches all over the place!</li>
+<li>People are committing! There&rsquo;s no reason not to commit anymore, and this feels great!</li>
+<li><a href="https://bitbucket.org">Bitbucket</a> is excellent. We haven&rsquo;t been able to scan through code in a browser in a long time and this is extremely convenient. Also, I needed support a couple of times and Bitbucket was responsive and helpful. And one more thing, Bitbucket&rsquo;s integration with JIRA is SWEET.</li>
+<li>A deployment tool! Finally, switching to Git and the pain of deployment was enough to get the resources I needed to make a long-time dream, push-button deployment, a reality at my company.</li>
+</ul>
+
+
+<p>It&rsquo;s been about three weeks since we moved to Git, and everyone&rsquo;s gotten into a comfortable flow. It was total chaos for about a week, and then things worked themselves out. I cannot thank my fellow developers enough for their patience and their help. From quickly written file system scripts to mass reverts, from work on the deployment tool to saving me when I felt overwhelmed. I love my job!</p>
+
+<h2>Resources</h2>
+
+<p>Here&rsquo;s just about everything from my SVN to Git bookmarks folder:</p>
+
+<ul>
+<li><a href="http://jonmaddox.com/2008/03/05/cleanly-migrate-your-subversion-repository-to-a-git-repository/">Cleanly Migrate Your Subversion Repository to a Git Repository</a></li>
+<li><a href="http://blokspeed.net/blog/2010/09/converting-from-subversion-to-git/">Converting from Subversion to Git</a></li>
+<li><a href="http://stackoverflow.com/questions/79165/how-to-migrate-svn-with-history-to-a-new-git-repository">How to migrate SVN with history to a new Git repository</a></li>
+<li><a href="http://john.albin.net/git/convert-subversion-to-git">Converting a Subversion repository to Git</a></li>
+<li><a href="http://thomasrast.ch/git/git-svn-conversion.html">Converting an SVN repository to Git</a></li>
+<li><a href="http://stackoverflow.com/questions/1425030/how-to-update-git-log-after-git-svn-fetch-on-a-bare-repo">How to update git log after git svn fetch on a bare repo</a></li>
+<li><a href="http://scottchacon.com/2011/08/31/github-flow.html">Issues with git-flow</a></li>
+<li><a href="http://stackoverflow.com/questions/15377847/move-all-new-code-on-master-to-a-new-branch-in-git">Move all new code on master to a new branch in Git</a></li>
+<li><a href="http://blogs.atlassian.com/2013/01/atlassian-svn-to-git-migration-technical-side/">From SVN to Git: How Atlassian Made the Switch</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Firebase Priority and AngularFire]]></title>
